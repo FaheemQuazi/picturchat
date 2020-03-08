@@ -5,7 +5,6 @@
     <link rel="stylesheet" href="/css/skeleton.css">
     <link rel="stylesheet" href="/css/nds.css">
     <link rel="stylesheet" href="/css/literallycanvas.css">
-    <script src="/js/pressure.min.js"></script>
     <script src="/js/literallycanvas-core.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <title>PicturChat</title>
@@ -67,7 +66,7 @@
 
 <body>
     <template id="entry">
-        <div class="entry">
+        <div class="entry item">
             <span class="name">&nbsp;Faheem&nbsp;</span>
             <canvas width="290" height="125"></canvas>
         </div>
@@ -86,10 +85,14 @@
             <span class="name">&nbsp;<%= name %>&nbsp;</span>
             <div class="lclCanvas"></div>
         </div>
-        <img src="/bg/send.png" style="border:2px solid black; border-radius:3px;" onclick="sendmsg();">
+        <div style="width: 290px; display:flex; flex-direction:column; justify-content:flex-end; align-items:flex-end;border:2px solid black; padding: 5 0;">
+            <img src="/bg/send.png" style="border-left:2px solid black;border-top-left-radius:10px;border-top:2px solid black;" onclick="sendmsg();">
+            <img src="/bg/copy.png" style="border-left:2px solid black;border-top:2px solid black; border-bottom:2px solid black;" onclick="copylast();">
+            <img src="/bg/clear.png" style="border-left:2px solid black;border-bottom-left-radius:10px;border-bottom:2px solid black;" onclick="lc.clear();">
+        </div>
     </div>
     <script>
-        var lc = LC.init(document.getElementsByClassName('lclCanvas')[0], {imageSize: {width: 290, height: 125}});
+        var lc = LC.init(document.getElementsByClassName('lclCanvas')[0], {imageSize: {width: 290, height: 125}, defaultStrokeWidth: 2});
         var chat = document.querySelector("#chat");
         var entry = document.querySelector('#entry');
 
@@ -109,14 +112,36 @@
         });
 
         function sendmsg() {
-            socket.emit("msg-new", {
-                img: lc.getImage().toDataURL(),
-                name: "<%= name %>"
-            }, (msg) => {
-                rcvmsg(msg);
-            });
-            lc.clear();
-            chat.scrollTop = chat.scrollHeight;
+            var tosend = lc.getImage();
+            var ctx = tosend.getContext("2d")
+            var data = ctx.getImageData(0,0,ctx.canvas.width, ctx.canvas.height).data;
+            var isEmpty = !Array.prototype.some.call(data, function(p){return p>0;});
+
+            if (!isEmpty) {
+                socket.emit("msg-new", {
+                    img: tosend.toDataURL(),
+                    name: "<%= name %>"
+                }, (msg) => {
+                    rcvmsg(msg);
+                });
+                lc.clear();
+                chat.scrollTop = chat.scrollHeight;
+            }
+
+        }
+
+        function copylast() {
+            try {
+                var entries = chat.querySelectorAll("div.entry.item");
+                var latest = entries[entries.length - 1].querySelector('canvas');
+                
+                var latestImg = new Image();
+                latestImg.src = latest.toDataURL();
+
+                lc.saveShape(LC.createShape("Image", {x:0,y:0,image:latestImg}));
+            } catch (error) {
+                throw error;
+            }
         }
 
         function rcvmsg(msg) {
