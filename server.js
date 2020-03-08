@@ -31,7 +31,7 @@ io.on('connection', function (socket) {
         fn(data);
     });
     socket.on('leave', (name) => {
-        console.log("leave: " + data);
+        console.log("leave: " + name);
         socket.broadcast.emit("leave", name);
     })
 });

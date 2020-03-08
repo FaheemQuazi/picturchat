@@ -1,9 +1,9 @@
 <html lang="en">
 
 <head>
-    <link rel="stylesheet" href="/css/nds.css">
     <link rel="stylesheet" href="/css/normalize.css">
     <link rel="stylesheet" href="/css/skeleton.css">
+    <link rel="stylesheet" href="/css/nds.css">
     <title>PicturChat</title>
 </head>
 
@@ -16,16 +16,20 @@
             </div>
             <div class="row" style="padding: 12px;">
                 <label for="name">Name</label>
-                <input id="name" name="name" class="u-full-width" type="text">
+                <input id="name" name="name" class="u-full-width" type="text" minlength="1" maxlength="10" required>
             </div>
             <div class="row" style="padding: 12px;">
-                <label for="room">Room</label>
-                <input id="room" name="room" class="u-full-width" type="text" value="Test">
+                <label for="room">Room (WIP)</label>
+                <input id="room" name="room" class="u-full-width" type="text" value="Test" minlength="1" maxlength="10" required readonly="readonly">
             </div>
             <div class="row ds foot">
                 <input class="button-secondary" type="submit" value="Submit" style="font-size: 4rem; color: black;">
             </div>
         </form>
+    </div>
+
+    <div style="text-align:center;border:none;">
+        <mark style="padding:3px;background-color:dodgerblue">Made for Fun by <a href="https://quazi.me" style="color:black;font-size:inherit;font-weight:bold;">Faheem Quazi</a></mark>
     </div>
 </body>
 
