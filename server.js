@@ -1,7 +1,8 @@
 let express = require('express');
 let app = express();
-var http = require('http').createServer(app);
-var io = require('socket.io')(http);
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
+var ver = require('./package.json').version;
 
 const port=process.env.PORT || 4000;
 
@@ -11,11 +12,14 @@ app.use(express.static('bower_components'))
 app.set('view engine', 'ejs');
 
 app.get('/', (req, res) => {
-    res.render('index');
+    res.render('index', {
+        version: ver
+    });
 });
 
 app.get("/room", (req,res) => {
     res.render('room', {
+        version: ver,
         name: req.query.name
     });
 })
@@ -36,6 +40,6 @@ io.on('connection', function (socket) {
     })
 });
 
-http.listen(port, function () {
+server.listen(port, function () {
     console.log('listening on *:' + port);
 });
