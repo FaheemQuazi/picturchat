@@ -1,0 +1,167 @@
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/skeleton.css">
+    <link rel="stylesheet" href="/css/nds.css">
+    <link rel="stylesheet" href="/css/literallycanvas.css">
+    <script src="/js/pressure.min.js"></script>
+    <script src="/js/literallycanvas-core.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <title>PicturChat</title>
+    <style>
+        #chat,#input  {
+            background-image: url("/bg/ic_tl.png");
+            background-repeat: no-repeat;
+            background-size:contain;
+            height: 400px;
+            width: 300px;
+            padding-left: 55px;
+            padding-right: 5px; 
+            overflow:hidden;
+        }
+
+        #input {
+            background-image: url("/bg/ic_bl.png");
+        }
+
+        .entry {
+            font-size: 27px;
+            width: 290px;
+            color: black;
+            border: 2px solid black;
+            background-color: white;
+            border-radius: 3;
+            margin: 10 0 10 0;
+            padding:0;
+            line-height:25px;
+        }
+
+        .entry.join,.entry.leave {
+            background-color:black;
+            color:yellow;
+        }
+
+        .entry.leave {
+            color:deepskyblue;
+        }
+        
+        .entry.join > .name, .entry.leave > .name {
+            color:white;
+        }
+
+        .entry > .name {
+            border-bottom: 2px solid black;
+            border-right: 2px solid black;
+            position:relative;
+            top:0;
+            left:0;
+        }
+
+        .entry.logo {
+            background-color: grey;
+        }
+    </style>
+</head>
+
+
+<body>
+    <template id="entry">
+        <div class="entry">
+            <span class="name">&nbsp;Faheem&nbsp;</span>
+            <canvas width="290" height="125"></canvas>
+        </div>
+    </template>
+    <template id="entry-join">
+        <div class="entry join">&nbsp;&nbsp;Now Entering: <span class="name">Testing</span></div>
+    </template>
+    <template id="entry-leave">
+        <div class="entry leave">&nbsp;&nbsp;Now Leaving: <span class="name">Testing</span></div>
+    </template>
+    <div id="chat">
+        <div class="entry logo">&nbsp;&nbsp;PICTURCHAT</div>
+        
+    </div>
+    <div id="input">
+        <div class="entry">
+            <span class="name">&nbsp;<%= name %>&nbsp;</span>
+            <div class="lclCanvas"></div>
+        </div>
+        <img src="/bg/send.png" style="border:2px solid black; border-radius:3px;" onclick="sendmsg();">
+    </div>
+
+    <script>
+        var lc = LC.init(document.getElementsByClassName('lclCanvas')[0], {imageSize: {width: 290, height: 125}});
+        var chat = document.querySelector("#chat");
+        var entry = document.querySelector('#entry');
+
+        var socket = io();
+
+        socket.on('connect', () => {
+            socket.emit("join", "<%= name %>", (name) => {joined(name)});
+            socket.on('msg-new', msg => {
+                rcvmsg(msg);
+            });
+            socket.on('join', (name) => {
+                joined(name);
+            });
+            socket.on('leave', (name) => {
+                leaved(name);
+            })
+        });
+
+        function sendmsg() {
+            socket.emit("msg-new", {
+                img: lc.getImage().toDataURL(),
+                name: "<%= name %>"
+            }, (msg) => {
+                rcvmsg(msg);
+            });
+            lc.clear();
+        }
+
+        function rcvmsg(msg) {
+            var newentry = entry.content.cloneNode(true);
+            newentry.querySelector("span").innerHTML = "&nbsp;" + msg.name + "&nbsp;";
+            var myCanvas = newentry.querySelector("canvas");
+            var ctx = myCanvas.getContext('2d');
+            var img = new Image;
+            img.onload = function(){
+                ctx.drawImage(img,0,0); // Or at whatever offset you like
+            };
+            img.src = msg.img;
+            chat.appendChild(newentry);
+
+            chat.scrollTop = chat.scrollWidth;
+        }
+
+        function joined(name) {
+            var e = document.querySelector('#entry-join');
+            var ec = e.content.cloneNode(true);
+            ec.querySelector(".name").innerText = name;
+
+            chat.appendChild(ec);
+            chat.scrollTop = chat.scrollWidth;
+        }
+
+        function leaved(name) {
+            var e = document.querySelector('#entry-leave');
+            var ec = e.content.cloneNode(true);
+            ec.querySelector(".name").innerText = name;
+
+            chat.appendChild(ec);
+            chat.scrollTop = chat.scrollWidth;
+        }
+
+        window.onbeforeunload = leav;
+        function leav() {
+            socket.emit("leave", "<%= name %>");
+            return null;
+        }
+    </script>
+
+    <script>
+    </script>
+</body>
+
+</html>

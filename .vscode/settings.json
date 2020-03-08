@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/46549a25-a0f7-49fd-a7bb-2c6bb52a7aa6/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/picturchat",
+    "appService.deploySubpath": ""
+}
