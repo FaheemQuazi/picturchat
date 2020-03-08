@@ -117,6 +117,7 @@
                 rcvmsg(msg);
             });
             lc.clear();
+            chat.scrollTop = chat.scrollWidth;
         }
 
         function rcvmsg(msg) {
@@ -155,8 +156,13 @@
         window.onbeforeunload = leav;
         function leav() {
             socket.emit("leave", "<%= name %>");
+            chat.scrollTop = chat.scrollWidth;
             return null;
         }
+
+        setInterval(() => {
+           chat.scrollTop = chat.scrollWidth;
+        }, 200);
     </script>
     <div class="row" style="text-align:center; width:360px;border:none;">
         <mark style="padding:3px;background-color:dodgerblue">Made for Fun by <a href="https://quazi.me" style="color:black;font-size:inherit;font-weight:bold;">Faheem Quazi</a></mark>
